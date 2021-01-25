@@ -1,4 +1,4 @@
-package routes
+package rotas
 
 import (
 	"net/http"
@@ -8,31 +8,31 @@ import (
 
 var userRoutes = []Rota{
 	{
-		URI:                "/users",
+		URI:                "/usuarios",
 		Metodo:             http.MethodPost,
 		Funcao:             controllers.CreateUser,
 		RequerAutenticacao: false,
 	},
 	{
-		URI:                "/users/{id}",
+		URI:                "/usuarios/{id}",
 		Metodo:             http.MethodPut,
 		Funcao:             controllers.UpdateUser,
 		RequerAutenticacao: false,
 	},
 	{
-		URI:                "/users",
+		URI:                "/usuarios",
 		Metodo:             http.MethodGet,
 		Funcao:             controllers.FindUser,
 		RequerAutenticacao: false,
 	},
 	{
-		URI:                "/users/{id}",
+		URI:                "/usuarios/{id}",
 		Metodo:             http.MethodGet,
 		Funcao:             controllers.FindUsers,
 		RequerAutenticacao: false,
 	},
 	{
-		URI:                "/users/{id}",
+		URI:                "/usuarios/{id}",
 		Metodo:             http.MethodDelete,
 		Funcao:             controllers.DeleteUser,
 		RequerAutenticacao: false,

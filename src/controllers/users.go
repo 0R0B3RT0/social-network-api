@@ -2,27 +2,27 @@ package controllers
 
 import "net/http"
 
-// CriarUsuario insere um usuário no banco de dados
-func CriarUsuario(w http.ResponseWriter, r *http.Request) {
+// CreateUser insere um usuário no banco de dados
+func CreateUser(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Criando Usuário!"))
 }
 
-// AtualizarUsuario atualiza um usuário no banco
-func AtualizarUsuario(w http.ResponseWriter, r *http.Request) {
+// UpdateUser atualiza um usuário no banco
+func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Atualizar Usuário!"))
 }
 
-// BuscarUsuarios busta todos os utuários do banco
-func BuscarUsuarios(w http.ResponseWriter, r *http.Request) {
+// FindUser busta todos os utuários do banco
+func FindUser(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Buscando Usuários!"))
 }
 
-// BuscarUsuario busca um usuário no banco
-func BuscarUsuario(w http.ResponseWriter, r *http.Request) {
+// FindUsers busca um usuário no banco
+func FindUsers(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Buscando Usuário!"))
 }
 
-// DeletarUsuario remove um usuário do bando
-func DeletarUsuario(w http.ResponseWriter, r *http.Request) {
+// DeleteUser remove um usuário do bando
+func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Deletando Usuário!"))
 }
