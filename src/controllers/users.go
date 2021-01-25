@@ -1,10 +1,42 @@
 package controllers
 
-import "net/http"
+import (
+	"api/src/database"
+	"api/src/models"
+	"api/src/repositories"
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"log"
+	"net/http"
+)
 
 // CreateUser insere um usuário no banco de dados
 func CreateUser(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Criando Usuário!"))
+
+	body, error := ioutil.ReadAll(r.Body)
+	if error != nil {
+		log.Fatal(error)
+	}
+
+	var user models.User
+	if error = json.Unmarshal(body, &user); error != nil {
+		log.Fatal(error)
+	}
+
+	db, error := database.Connect()
+	if error != nil {
+		log.Fatal(error)
+	}
+
+	repository := repositories.NewUserRepositories(db)
+	userID, error := repository.Create(user)
+	if error != nil {
+		log.Fatal(error)
+	}
+
+	// w.WriteHeader(http.StatusCreated)
+	w.Write([]byte(fmt.Sprintf("Id of user added: %d", userID)))
 }
 
 // UpdateUser atualiza um usuário no banco
