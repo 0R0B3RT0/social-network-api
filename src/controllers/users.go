@@ -4,10 +4,9 @@ import (
 	"api/src/database"
 	"api/src/models"
 	"api/src/repositories"
+	"api/src/response"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 )
 
@@ -16,27 +15,36 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	body, error := ioutil.ReadAll(r.Body)
 	if error != nil {
-		log.Fatal(error)
+		response.Error(w, http.StatusUnprocessableEntity, error)
+		return
 	}
 
 	var user models.User
 	if error = json.Unmarshal(body, &user); error != nil {
-		log.Fatal(error)
+		response.Error(w, http.StatusBadRequest, error)
+		return
+	}
+
+	if error = user.Prepare(); error != nil {
+		response.Error(w, http.StatusBadRequest, error)
+		return
 	}
 
 	db, error := database.Connect()
 	if error != nil {
-		log.Fatal(error)
+		response.Error(w, http.StatusInternalServerError, error)
+		return
 	}
+	defer db.Close()
 
 	repository := repositories.NewUserRepositories(db)
-	userID, error := repository.Create(user)
+	user.ID, error = repository.Create(user)
 	if error != nil {
-		log.Fatal(error)
+		response.Error(w, http.StatusInternalServerError, error)
+		return
 	}
 
-	// w.WriteHeader(http.StatusCreated)
-	w.Write([]byte(fmt.Sprintf("Id of user added: %d", userID)))
+	response.JSON(w, http.StatusCreated, user)
 }
 
 // UpdateUser atualiza um usuário no banco

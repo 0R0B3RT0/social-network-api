@@ -1,5 +1,5 @@
 echo "########## INSERT TWO NEW USERS ##########\n"
-curl -i -X POST localhost:5000/users --header "Content-Type: application/json" --data '{"id":123,"nome":"Fulano um","email":"fulano@gmail.com"}'
+curl -i -X POST localhost:5000/users --header "Content-Type: application/json" --data '{"name":"Fulano dois", "nick":"apelido","email":"fulano-dois@gmail.com","pass":"skdjalskj"}'
 echo "\n----------------------------------\n\n"
 
 # curl -i -X POST localhost:5000/users --header "Content-Type: application/json" --data '{"id":123,"nome":"Fulano dois","email":"fulano-dois@gmail.com"}'
