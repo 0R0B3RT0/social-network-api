@@ -10,7 +10,7 @@ echo "\n----------------------------------\n\n"
 # echo "\n----------------------------------\n\n"
 
 # echo "########## FIND ALL USERS ##########\n"
-# curl -i -X GET localhost:5000/users --header "Content-Type: application/json"                                                                
+curl -i -X GET localhost:5000/users?user=fulano --header "Content-Type: application/json"
 # echo "\n----------------------------------\n\n"
 
 # echo "########## FIND ONE USER ##########\n"

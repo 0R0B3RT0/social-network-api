@@ -22,13 +22,13 @@ var userRoutes = []Rota{
 	{
 		URI:                "/users",
 		Metodo:             http.MethodGet,
-		Funcao:             controllers.FindUser,
+		Funcao:             controllers.FindUsers,
 		RequerAutenticacao: false,
 	},
 	{
 		URI:                "/users/{id}",
 		Metodo:             http.MethodGet,
-		Funcao:             controllers.FindUsers,
+		Funcao:             controllers.FindUser,
 		RequerAutenticacao: false,
 	},
 	{
