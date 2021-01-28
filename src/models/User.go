@@ -16,9 +16,9 @@ type User struct {
 	CreatedAt time.Time `json:"createdAt,omitempty"`
 }
 
-// Prepare validate and format the user to persist
-func (user *User) Prepare() error {
-	if error := user.validate(); error != nil {
+// PrepareToCreate validate and format the new user to persist
+func (user *User) PrepareToCreate() error {
+	if error := user.validate("create"); error != nil {
 		return error
 	}
 	user.formater()
@@ -26,7 +26,17 @@ func (user *User) Prepare() error {
 	return nil
 }
 
-func (user *User) validate() error {
+// PrepareToUpdate validate and format the new user to update
+func (user *User) PrepareToUpdate() error {
+	if error := user.validate("update"); error != nil {
+		return error
+	}
+	user.formater()
+
+	return nil
+}
+
+func (user *User) validate(step string) error {
 	if user.Name == "" {
 		return errors.New("The name is required field")
 	}
@@ -36,7 +46,7 @@ func (user *User) validate() error {
 	if user.Email == "" {
 		return errors.New("The email is required field")
 	}
-	if user.Pass == "" {
+	if step == "create" && user.Pass == "" {
 		return errors.New("The pass is required field")
 	}
 

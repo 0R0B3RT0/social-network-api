@@ -37,6 +37,27 @@ func (repository Users) Create(user models.User) (uint64, error) {
 	return uint64(lastID), nil
 }
 
+// Update update the user informations
+func (repository Users) Update(user models.User) (int64, error) {
+	statement, error := repository.db.Prepare("update users set name=?, nick=?, email=? where id=?")
+	if error != nil {
+		return 0, error
+	}
+	defer statement.Close()
+
+	result, error := statement.Exec(user.Name, user.Nick, user.Email, user.ID)
+	if error != nil {
+		return 0, error
+	}
+
+	rowsAffected, error := result.RowsAffected()
+	if error != nil {
+		return 0, nil
+	}
+
+	return rowsAffected, nil
+}
+
 // Find find users by name or nick
 func (repository Users) Find(nameOrNick string) ([]models.User, error) {
 	nameOrNick = fmt.Sprintf("%%%s%%", nameOrNick)

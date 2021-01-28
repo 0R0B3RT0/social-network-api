@@ -30,7 +30,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if error = user.Prepare(); error != nil {
+	if error = user.PrepareToCreate(); error != nil {
 		response.Error(w, http.StatusBadRequest, error)
 		return
 	}
@@ -54,7 +54,52 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 
 // UpdateUser atualiza um usuário no banco
 func UpdateUser(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Atualizar Usuário!"))
+	parameters := mux.Vars(r)
+	userID, error := strconv.ParseUint(parameters["id"], 10, 64)
+	if error != nil {
+		response.Error(w, http.StatusBadRequest, error)
+		return
+	}
+
+	body, error := ioutil.ReadAll(r.Body)
+	if error != nil {
+		response.Error(w, http.StatusUnprocessableEntity, error)
+		return
+	}
+
+	var user models.User
+	if error = json.Unmarshal(body, &user); error != nil {
+		response.Error(w, http.StatusBadRequest, error)
+		return
+	}
+	user.ID = userID
+
+	if error = user.PrepareToUpdate(); error != nil {
+		response.Error(w, http.StatusBadRequest, error)
+		return
+	}
+
+	db, error := database.Connect()
+	if error != nil {
+		response.Error(w, http.StatusInternalServerError, error)
+		return
+	}
+	defer db.Close()
+
+	repository := repositories.NewUserRepositories(db)
+
+	rowsAffected, error := repository.Update(user)
+	if error != nil {
+		response.Error(w, http.StatusInternalServerError, error)
+		return
+	}
+
+	if rowsAffected == 0 {
+		response.Error(w, http.StatusNotFound, errors.New("User not found"))
+		return
+	}
+
+	response.JSON(w, http.StatusNoContent, nil)
 }
 
 // FindUser busta todos os utuários do banco
