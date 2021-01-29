@@ -171,14 +171,8 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 
 	repository := repositories.NewUserRepositories(db)
 
-	affectedRows, error := repository.Delete(userID)
-	if error != nil {
+	if error := repository.Delete(userID); error != nil {
 		response.Error(w, http.StatusInternalServerError, error)
-		return
-	}
-
-	if affectedRows == 0 {
-		response.Error(w, http.StatusNotFound, errors.New("User not found"))
 		return
 	}
 
