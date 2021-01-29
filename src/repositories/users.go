@@ -110,3 +110,24 @@ func (repository Users) FindByID(userID uint64) (models.User, error) {
 
 	return user, nil
 }
+
+// Delete delete a user by id
+func (repository Users) Delete(userID uint64) (int64, error) {
+	statement, error := repository.db.Prepare("delete from users where id=?")
+	if error != nil {
+		return 0, error
+	}
+	defer statement.Close()
+
+	result, error := statement.Exec(userID)
+	if error != nil {
+		return 0, error
+	}
+
+	rowsAffected, error := result.RowsAffected()
+	if error != nil {
+		return 0, error
+	}
+
+	return rowsAffected, nil
+}

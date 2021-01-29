@@ -156,5 +156,31 @@ func FindUsers(w http.ResponseWriter, r *http.Request) {
 
 // DeleteUser remove um usuário do bando
 func DeleteUser(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Deletando Usuário!"))
+	userID, error := strconv.ParseUint(mux.Vars(r)["id"], 10, 64)
+	if error != nil {
+		response.Error(w, http.StatusBadRequest, error)
+		return
+	}
+
+	db, error := database.Connect()
+	if error != nil {
+		response.Error(w, http.StatusInternalServerError, error)
+		return
+	}
+	defer db.Close()
+
+	repository := repositories.NewUserRepositories(db)
+
+	affectedRows, error := repository.Delete(userID)
+	if error != nil {
+		response.Error(w, http.StatusInternalServerError, error)
+		return
+	}
+
+	if affectedRows == 0 {
+		response.Error(w, http.StatusNotFound, errors.New("User not found"))
+		return
+	}
+
+	response.JSON(w, http.StatusNoContent, nil)
 }
