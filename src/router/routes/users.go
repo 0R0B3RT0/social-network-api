@@ -6,7 +6,7 @@ import (
 	"api/src/controllers"
 )
 
-var userRoutes = []Rota{
+var userRoutes = []Route{
 	{
 		URI:                "/users",
 		Metodo:             http.MethodPost,
