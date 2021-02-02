@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"api/src/authentication"
 	"api/src/database"
 	"api/src/models"
 	"api/src/repositories"
@@ -49,6 +50,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	user.Pass = ""
 	response.JSON(w, http.StatusCreated, user)
 }
 
@@ -58,6 +60,17 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	userID, error := strconv.ParseUint(parameters["id"], 10, 64)
 	if error != nil {
 		response.Error(w, http.StatusBadRequest, error)
+		return
+	}
+
+	tokenUserID, error := authentication.ExtractUserID(r)
+	if error != nil {
+		response.Error(w, http.StatusUnauthorized, error)
+		return
+	}
+
+	if userID != tokenUserID {
+		response.Error(w, http.StatusForbidden, nil)
 		return
 	}
 

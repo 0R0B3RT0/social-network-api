@@ -15,6 +15,9 @@ var (
 
 	// Port where the API will executing
 	Port = 0
+
+	// SecretKey is the key used to sign the token
+	SecretKey []byte
 )
 
 // Load load the environment variables
@@ -34,4 +37,6 @@ func Load() {
 		os.Getenv("DB_USER"),
 		os.Getenv("DB_PASS"),
 		os.Getenv("DB_NAME"))
+
+	SecretKey = []byte(os.Getenv("SECRET_KEY"))
 }
