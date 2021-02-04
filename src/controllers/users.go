@@ -70,7 +70,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if userID != tokenUserID {
-		response.Error(w, http.StatusForbidden, nil)
+		response.Error(w, http.StatusForbidden, errors.New("it is not possible to delete a user other than yours"))
 		return
 	}
 
@@ -172,6 +172,17 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	userID, error := strconv.ParseUint(mux.Vars(r)["id"], 10, 64)
 	if error != nil {
 		response.Error(w, http.StatusBadRequest, error)
+		return
+	}
+
+	tokenUserID, error := authentication.ExtractUserID(r)
+	if error != nil {
+		response.Error(w, http.StatusUnauthorized, error)
+		return
+	}
+
+	if tokenUserID != userID {
+		response.Error(w, http.StatusForbidden, errors.New("it is not possible to delete a user other than yours"))
 		return
 	}
 
