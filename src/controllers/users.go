@@ -211,13 +211,13 @@ func Follow(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	folloeUserID, error := strconv.ParseUint(mux.Vars(r)["id"], 10, 64)
+	followedUserID, error := strconv.ParseUint(mux.Vars(r)["id"], 10, 64)
 	if error != nil {
 		response.Error(w, http.StatusBadRequest, error)
 		return
 	}
 
-	if folloeUserID == authenticatedUserID {
+	if followedUserID == authenticatedUserID {
 		response.Error(w, http.StatusForbidden, errors.New("it is not possible to follow yourself"))
 	}
 
@@ -230,7 +230,42 @@ func Follow(w http.ResponseWriter, r *http.Request) {
 
 	repository := repositories.NewUserRepositories(db)
 
-	if error = repository.Follow(authenticatedUserID, folloeUserID); error != nil {
+	if error = repository.Follow(authenticatedUserID, followedUserID); error != nil {
+		response.Error(w, http.StatusInternalServerError, error)
+		return
+	}
+
+	response.JSON(w, http.StatusNoContent, nil)
+}
+
+// Unfollow unfollow an user
+func Unfollow(w http.ResponseWriter, r *http.Request) {
+	authenticatedUserID, error := authentication.ExtractUserID(r)
+	if error != nil {
+		response.Error(w, http.StatusUnauthorized, error)
+		return
+	}
+
+	followedUserID, error := strconv.ParseUint(mux.Vars(r)["id"], 10, 64)
+	if error != nil {
+		response.Error(w, http.StatusBadRequest, error)
+		return
+	}
+
+	if followedUserID == authenticatedUserID {
+		response.JSON(w, http.StatusNoContent, nil)
+		return
+	}
+
+	db, error := database.Connect()
+	if error != nil {
+		response.Error(w, http.StatusInternalServerError, error)
+		return
+	}
+
+	repository := repositories.NewUserRepositories(db)
+
+	if error = repository.Unfollow(authenticatedUserID, followedUserID); error != nil {
 		response.Error(w, http.StatusInternalServerError, error)
 		return
 	}
