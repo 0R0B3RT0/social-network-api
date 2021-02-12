@@ -6,9 +6,11 @@ import (
 	"api/src/models"
 	"api/src/repositories"
 	"api/src/response"
+	"api/src/security"
 	"encoding/json"
 	"errors"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -331,4 +333,76 @@ func Followings(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response.JSON(w, http.StatusOK, followings)
+}
+
+//PasswordUpdate update user password
+func PasswordUpdate(w http.ResponseWriter, r *http.Request) {
+	authenticatedUserID, err := authentication.ExtractUserID(r)
+	if err != nil {
+		response.Error(w, http.StatusUnauthorized, err)
+		return
+	}
+
+	userID, err := strconv.ParseUint(mux.Vars(r)["id"], 10, 64)
+	if err != nil {
+		response.Error(w, http.StatusBadRequest, err)
+		return
+	}
+	if authenticatedUserID != userID {
+		response.Error(w, http.StatusForbidden, errors.New("you can not update another user's password"))
+		return
+	}
+
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		response.Error(w, http.StatusUnprocessableEntity, err)
+		return
+	}
+
+	var pass models.Password
+	if err = json.Unmarshal(body, &pass); err != nil {
+		response.Error(w, http.StatusBadRequest, err)
+		return
+	}
+
+	hashNewPass, err := security.Hash(pass.NewPassword)
+	if err != nil {
+		response.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+	pass.NewPassword = string(hashNewPass)
+
+	db, err := database.Connect()
+	if err != nil {
+		response.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+	defer db.Close()
+
+	users := repositories.NewUserRepositories(db)
+
+	password, err := users.GetUserPassword(authenticatedUserID)
+	if err != nil {
+		response.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	err = security.VerifyPassword(password, pass.LastPassword)
+	if err != nil {
+		log.Printf("Invalid password, userID: %d", userID)
+		response.Error(w, http.StatusForbidden, errors.New("invalid user or password"))
+	}
+
+	isUpdated, err := users.UpdatePassword(authenticatedUserID, pass.NewPassword)
+	if err != nil {
+		response.Error(w, http.StatusBadRequest, err)
+		return
+	}
+
+	if !isUpdated {
+		response.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	response.JSON(w, http.StatusNoContent, nil)
 }
