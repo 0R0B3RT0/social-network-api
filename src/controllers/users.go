@@ -19,34 +19,34 @@ import (
 // CreateUser insere um usuário no banco de dados
 func CreateUser(w http.ResponseWriter, r *http.Request) {
 
-	body, error := ioutil.ReadAll(r.Body)
-	if error != nil {
-		response.Error(w, http.StatusUnprocessableEntity, error)
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		response.Error(w, http.StatusUnprocessableEntity, err)
 		return
 	}
 
 	var user models.User
-	if error = json.Unmarshal(body, &user); error != nil {
-		response.Error(w, http.StatusBadRequest, error)
+	if err = json.Unmarshal(body, &user); err != nil {
+		response.Error(w, http.StatusBadRequest, err)
 		return
 	}
 
-	if error = user.PrepareToCreate(); error != nil {
-		response.Error(w, http.StatusBadRequest, error)
+	if err = user.PrepareToCreate(); err != nil {
+		response.Error(w, http.StatusBadRequest, err)
 		return
 	}
 
-	db, error := database.Connect()
-	if error != nil {
-		response.Error(w, http.StatusInternalServerError, error)
+	db, err := database.Connect()
+	if err != nil {
+		response.Error(w, http.StatusInternalServerError, err)
 		return
 	}
 	defer db.Close()
 
 	repository := repositories.NewUserRepositories(db)
-	user.ID, error = repository.Create(user)
-	if error != nil {
-		response.Error(w, http.StatusInternalServerError, error)
+	user.ID, err = repository.Create(user)
+	if err != nil {
+		response.Error(w, http.StatusInternalServerError, err)
 		return
 	}
 
@@ -54,7 +54,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	response.JSON(w, http.StatusCreated, user)
 }
 
-// UpdateUser atualiza um usuário no banco
+// UpdateUser update user attributes
 func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	parameters := mux.Vars(r)
 	userID, error := strconv.ParseUint(parameters["id"], 10, 64)
@@ -271,4 +271,34 @@ func Unfollow(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response.JSON(w, http.StatusNoContent, nil)
+}
+
+func Followers(w http.ResponseWriter, r *http.Request) {
+	userID, err := strconv.ParseUint(mux.Vars(r)["id"], 10, 64)
+	if err != nil {
+		response.Error(w, http.StatusBadGateway, err)
+		return
+	}
+
+	db, err := database.Connect()
+	if err != nil {
+		response.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+	defer db.Close()
+
+	users := repositories.NewUserRepositories(db)
+
+	followers, err := users.Followers(userID)
+	if err != nil {
+		response.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	//if len(followers) == 0 {
+	//	response.Error(w, http.StatusNotFound, nil)
+	//	return
+	//}
+
+	response.JSON(w, http.StatusOK, followers)
 }
