@@ -156,7 +156,7 @@ func (repository Users) FindByEmail(email string) (models.User, error) {
 
 // Follow persiste the follower
 func (repository Users) Follow(userID, followedUserID uint64) error {
-	statement, error := repository.db.Prepare("insert ignore into followers (followed_id, follower_id) values (?,?)")
+	statement, error := repository.db.Prepare("insert ignore into followers (following_id, follower_id) values (?,?)")
 	if error != nil {
 		return error
 	}
@@ -171,7 +171,7 @@ func (repository Users) Follow(userID, followedUserID uint64) error {
 
 // Unfollow remove follow user
 func (repository Users) Unfollow(followerUserID, followedUserID uint64) error {
-	statement, error := repository.db.Prepare("delete from followers where follower_id=? and followed_id=?")
+	statement, error := repository.db.Prepare("delete from followers where follower_id=? and following_id=?")
 	if error != nil {
 		return error
 	}
@@ -189,7 +189,7 @@ func (repository Users) Unfollow(followerUserID, followedUserID uint64) error {
 
 //Followers search all user's followers
 func (repository Users) Followers(userID uint64) ([]models.User, error) {
-	statement, err := repository.db.Prepare("select u.id, u.name, u.nick, u.email from users u join followers f on f.follower_id = u.id where f.followed_id=?")
+	statement, err := repository.db.Prepare("select u.id, u.name, u.nick, u.email from users u join followers f on f.follower_id = u.id where f.following_id=?")
 	if err != nil {
 		return nil, err
 	}
@@ -203,7 +203,44 @@ func (repository Users) Followers(userID uint64) ([]models.User, error) {
 	var users []models.User
 	for rows.Next() {
 		var user models.User
-		rows.Scan(&user.ID, &user.Name, &user.Nick, &user.Email)
+		if err := rows.Scan(
+			&user.ID,
+			&user.Name,
+			&user.Nick,
+			&user.Email,
+		); err != nil {
+			return nil, err
+		}
+		users = append(users, user)
+	}
+
+	return users, nil
+}
+
+//Followings search all user's followings
+func (repository Users) Followings(userID uint64) ([]models.User, error) {
+	statement, err := repository.db.Prepare("select u.id, u.name, u.nick, u.email from users u join followers f on f.following_id = u.id where f.follower_id=?")
+	if err != nil {
+		return nil, err
+	}
+	defer statement.Close()
+
+	rows, err := statement.Query(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	var users []models.User
+	for rows.Next() {
+		var user models.User
+		if err := rows.Scan(
+			&user.ID,
+			&user.Name,
+			&user.Nick,
+			&user.Email,
+		); err != nil {
+			return nil, err
+		}
 		users = append(users, user)
 	}
 

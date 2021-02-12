@@ -295,10 +295,40 @@ func Followers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//if len(followers) == 0 {
-	//	response.Error(w, http.StatusNotFound, nil)
-	//	return
-	//}
+	if len(followers) == 0 {
+		response.Error(w, http.StatusNotFound, nil)
+		return
+	}
 
 	response.JSON(w, http.StatusOK, followers)
+}
+
+func Followings(w http.ResponseWriter, r *http.Request) {
+	userID, err := strconv.ParseUint(mux.Vars(r)["id"], 10, 64)
+	if err != nil {
+		response.Error(w, http.StatusBadGateway, err)
+		return
+	}
+
+	db, err := database.Connect()
+	if err != nil {
+		response.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+	defer db.Close()
+
+	users := repositories.NewUserRepositories(db)
+
+	followings, err := users.Followings(userID)
+	if err != nil {
+		response.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	if len(followings) == 0 {
+		response.Error(w, http.StatusNotFound, nil)
+		return
+	}
+
+	response.JSON(w, http.StatusOK, followings)
 }
