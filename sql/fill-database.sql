@@ -7,3 +7,7 @@ insert into followers (follower_id, following_id) values
 (1, 2),
 (1, 3),
 (3, 1);
+
+insert into publications(user_id, title, content, likes) values
+(1, 'Primeira publicação', 'Essa é a primeira de muitas publicações', 1),
+(3, 'Segunda publicação', 'Essa é a primeira de muitas publicações do usuário três', 3);
