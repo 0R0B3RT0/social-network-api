@@ -8,8 +8,10 @@ import (
 	"api/src/response"
 	"encoding/json"
 	"errors"
+	"github.com/gorilla/mux"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 )
 
 //CreatePublication create a new publication
@@ -73,7 +75,33 @@ func FindPublications(w http.ResponseWriter, r *http.Request) {
 
 //FindPublication find a specific publication
 func FindPublication(w http.ResponseWriter, r *http.Request) {
+	publicationID, err := strconv.ParseUint(mux.Vars(r)["id"], 10, 64)
+	if err != nil {
+		response.Error(w, http.StatusBadRequest, err)
+		return
+	}
 
+	if err = authentication.ValidateToken(r); err != nil {
+		response.Error(w, http.StatusUnauthorized, err)
+		return
+	}
+
+	db, err := database.Connect()
+	if err != nil {
+		response.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+	defer db.Close()
+
+	repository := repositories.NewPublicationRepositories(db)
+
+	publication, err := repository.Find(publicationID)
+	if err != nil {
+		response.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	response.JSON(w, http.StatusCreated, publication)
 }
 
 //DeletePublication remove the publication from the database
