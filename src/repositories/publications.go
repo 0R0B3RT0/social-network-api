@@ -5,6 +5,12 @@ import (
 	"database/sql"
 )
 
+const (
+	InsertPublication                             = "insert into publications(title, content, user_id) values(?,?,?)"
+	SelectPublicationByID                         = "select p.id, p.title, p.content, p.likes, p.user_id, u.nick, p.created_at from publications p join users u on p.user_id = u.id where p.id = ?"
+	SelectUserAndFollowedUserPublicationsByUserID = "select p.id, p.title, p.content, p.likes, p.user_id, u.nick, p.created_at from users u join publications p on u.id = p.user_id where u.id = ? or u.id in (select f.following_id from followers f where f.follower_id = ?)"
+)
+
 type Publications struct {
 	db *sql.DB
 }
@@ -15,7 +21,7 @@ func NewPublicationRepositories(db *sql.DB) *Publications {
 
 //Create persist a new publication
 func (repository Publications) Create(pub models.Publication) (uint64, error) {
-	statement, err := repository.db.Prepare("insert into publications(title, content, user_id) values(?,?,?)")
+	statement, err := repository.db.Prepare(InsertPublication)
 	if err != nil {
 		return 0, err
 	}
@@ -36,7 +42,7 @@ func (repository Publications) Create(pub models.Publication) (uint64, error) {
 
 //Find find a specific publication by id
 func (repository Publications) Find(ID uint64) (publication models.Publication, err error) {
-	rows, err := repository.db.Query("select p.id, p.title, p.content, p.likes, p.user_id, u.nick, p.created_at from publications p join users u on p.user_id = u.id where p.id = ?", ID)
+	rows, err := repository.db.Query(SelectPublicationByID, ID)
 
 	if err != nil {
 		return
@@ -61,7 +67,7 @@ func (repository Publications) Find(ID uint64) (publication models.Publication, 
 }
 
 func (repository Publications) FindByUserAndFollowUsers(userID uint64) (publications []models.Publication, err error) {
-	rows, err := repository.db.Query("select p.id, p.title, p.content, p.likes, p.user_id, u.nick, p.created_at from users u join publications p on u.id = p.user_id where u.id = ? or u.id in (select f.following_id from followers f where f.follower_id = ?)", userID, userID)
+	rows, err := repository.db.Query(SelectUserAndFollowedUserPublicationsByUserID, userID, userID)
 	if err != nil {
 		return
 	}
