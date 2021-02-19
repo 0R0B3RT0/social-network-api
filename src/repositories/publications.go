@@ -41,6 +41,7 @@ func (repository Publications) Find(ID uint64) (publication models.Publication, 
 	if err != nil {
 		return
 	}
+	defer rows.Close()
 
 	if rows.Next() {
 		if err = rows.Scan(
@@ -54,6 +55,32 @@ func (repository Publications) Find(ID uint64) (publication models.Publication, 
 		); err != nil {
 			return
 		}
+	}
+
+	return
+}
+
+func (repository Publications) FindByUserAndFollowUsers(userID uint64) (publications []models.Publication, err error) {
+	rows, err := repository.db.Query("select p.id, p.title, p.content, p.likes, p.user_id, u.nick, p.created_at from users u join publications p on u.id = p.user_id where u.id = ? or u.id in (select f.following_id from followers f where f.follower_id = ?)", userID, userID)
+	if err != nil {
+		return
+	}
+	defer rows.Close()
+
+	var publication models.Publication
+	for rows.Next() {
+		if err = rows.Scan(
+			&publication.ID,
+			&publication.Title,
+			&publication.Content,
+			&publication.Likes,
+			&publication.UserID,
+			&publication.UserNick,
+			&publication.CreatedAt,
+		); err != nil {
+			return
+		}
+		publications = append(publications, publication)
 	}
 
 	return

@@ -70,7 +70,28 @@ func UpdatePublication(w http.ResponseWriter, r *http.Request) {
 
 //FindPublications find all publications from the user
 func FindPublications(w http.ResponseWriter, r *http.Request) {
+	authenticatedUserID, err := authentication.ExtractUserID(r)
+	if err != nil {
+		response.Error(w, http.StatusUnauthorized, err)
+		return
+	}
 
+	db, err := database.Connect()
+	if err != nil {
+		response.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+	defer db.Close()
+
+	repository := repositories.NewPublicationRepositories(db)
+
+	publications, err := repository.FindByUserAndFollowUsers(authenticatedUserID)
+	if err != nil {
+		response.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	response.JSON(w, http.StatusCreated, publications)
 }
 
 //FindPublication find a specific publication
