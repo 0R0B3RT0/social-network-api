@@ -6,9 +6,18 @@ import (
 )
 
 const (
-	InsertPublication                             = "insert into publications(title, content, user_id) values(?,?,?)"
-	SelectPublicationByID                         = "select p.id, p.title, p.content, p.likes, p.user_id, u.nick, p.created_at from publications p join users u on p.user_id = u.id where p.id = ?"
-	SelectUserAndFollowedUserPublicationsByUserID = "select p.id, p.title, p.content, p.likes, p.user_id, u.nick, p.created_at from users u join publications p on u.id = p.user_id where u.id = ? or u.id in (select f.following_id from followers f where f.follower_id = ?)"
+	InsertPublication = `insert into publications(title, content, user_id)
+								  values (?, ?, ?)`
+	SelectPublicationByID = `select p.id, p.title, p.content, p.likes, p.user_id, u.nick, p.created_at
+							   from publications p
+									join users u on p.user_id = u.id
+							  where p.id = ?`
+	SelectUserAndFollowedUserPublicationsByUserID = `select p.id, p.title, p.content, p.likes, p.user_id, u.nick, p.created_at
+													   from users u
+													        join publications p on u.id = p.user_id
+													  where u.id = ?
+														 or u.id in (select f.following_id from followers f where f.follower_id = ?)
+												   order by p.id`
 )
 
 type Publications struct {
