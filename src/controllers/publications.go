@@ -48,6 +48,11 @@ func CreatePublication(w http.ResponseWriter, r *http.Request) {
 
 	repository := repositories.NewPublicationRepositories(db)
 
+	if err := publication.Prepare(); err != nil {
+		response.Error(w, http.StatusBadRequest, err)
+		return
+	}
+
 	publicationID, err := repository.Create(publication)
 	if err != nil {
 		response.Error(w, http.StatusInternalServerError, err)
