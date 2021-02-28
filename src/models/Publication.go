@@ -13,7 +13,7 @@ type Publication struct {
 	Content   string     `json:"content,omitempty"`
 	UserID    uint64     `json:"userId,omitempty"`
 	UserNick  string     `json:"userNick,omitempty"`
-	Likes     uint64     `json:"likes"`
+	Likes     uint64     `json:"likes,omitempty"`
 	CreatedAt *time.Time `json:"createdAd,omitempty"`
 }
 

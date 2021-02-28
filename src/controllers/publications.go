@@ -177,7 +177,12 @@ func FindPublication(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response.JSON(w, http.StatusCreated, publication)
+	if publication.ID == 0 {
+		response.Error(w, http.StatusNotFound, errors.New("publication not found"))
+		return
+	}
+
+	response.JSON(w, http.StatusOK, publication)
 }
 
 //DeletePublication remove the publication from the database
