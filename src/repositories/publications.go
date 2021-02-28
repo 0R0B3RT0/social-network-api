@@ -120,3 +120,17 @@ func (repository Publications) FindByUserAndFollowUsers(userID uint64) (publicat
 
 	return
 }
+
+//Delete remove a publication from database
+func (repository Publications) Delete(pubID uint64) error {
+	statement, err := repository.db.Prepare("delete from publications where id=?")
+	if err != nil {
+		return err
+	}
+
+	if _, err = statement.Exec(pubID); err != nil {
+		return err
+	}
+
+	return nil
+}
