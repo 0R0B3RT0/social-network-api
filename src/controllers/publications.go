@@ -182,5 +182,42 @@ func FindPublication(w http.ResponseWriter, r *http.Request) {
 
 //DeletePublication remove the publication from the database
 func DeletePublication(w http.ResponseWriter, r *http.Request) {
+	pubID, err := strconv.ParseUint(mux.Vars(r)["id"], 10, 64)
+	if err != nil {
+		response.Error(w, http.StatusBadRequest, err)
+		return
+	}
 
+	authenticatedUserID, err := authentication.ExtractUserID(r)
+	if err != nil {
+		response.Error(w, http.StatusUnauthorized, err)
+		return
+	}
+
+	db, err := database.Connect()
+	if err != nil {
+		response.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+	defer db.Close()
+
+	repository := repositories.NewPublicationRepositories(db)
+
+	publicationPersisted, err := repository.Find(pubID)
+	if err != nil {
+		response.Error(w, http.StatusBadRequest, err)
+		return
+	}
+
+	if publicationPersisted.UserID != authenticatedUserID {
+		response.Error(w, http.StatusForbidden, errors.New("it is not possible to delete a publication from other user"))
+		return
+	}
+
+	if err = repository.Delete(pubID); err != nil {
+		response.Error(w, http.StatusBadRequest, err)
+		return
+	}
+
+	response.JSON(w, http.StatusNoContent, nil)
 }
