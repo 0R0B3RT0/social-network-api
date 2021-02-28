@@ -49,6 +49,26 @@ func (repository Publications) Create(pub models.Publication) (uint64, error) {
 	return uint64(lastInsertId), nil
 }
 
+func (repository Publications) Update(pubID uint64, pub models.Publication) (uint64, error) {
+	statement, err := repository.db.Prepare("update publications set title=?, content=? where id=?")
+	if err != nil {
+		return 0, err
+	}
+	defer statement.Close()
+
+	result, err := statement.Exec(pub.Title, pub.Content, pubID)
+	if err != nil {
+		return 0, err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return 0, err
+	}
+
+	return uint64(rowsAffected), nil
+}
+
 //Find find a specific publication by id
 func (repository Publications) Find(ID uint64) (publication models.Publication, err error) {
 	rows, err := repository.db.Query(SelectPublicationByID, ID)
