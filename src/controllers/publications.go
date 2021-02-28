@@ -48,7 +48,7 @@ func CreatePublication(w http.ResponseWriter, r *http.Request) {
 
 	repository := repositories.NewPublicationRepositories(db)
 
-	if err := publication.Prepare(); err != nil {
+	if err = publication.Prepare(); err != nil {
 		response.Error(w, http.StatusBadRequest, err)
 		return
 	}
@@ -70,7 +70,57 @@ func CreatePublication(w http.ResponseWriter, r *http.Request) {
 
 //UpdatePublication update an existing publication
 func UpdatePublication(w http.ResponseWriter, r *http.Request) {
+	publicationID, err := strconv.ParseUint(mux.Vars(r)["id"], 10, 64)
+	if err != nil {
+		response.Error(w, http.StatusBadRequest, err)
+		return
+	}
 
+	authenticatedUserID, err := authentication.ExtractUserID(r)
+	if err != nil {
+		response.Error(w, http.StatusUnauthorized, err)
+		return
+	}
+
+	db, err := database.Connect()
+	if err != nil {
+		response.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+	defer db.Close()
+
+	repository := repositories.NewPublicationRepositories(db)
+
+	publicationPersisted, err := repository.Find(publicationID)
+	if err != nil {
+		response.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	if publicationPersisted.UserID != authenticatedUserID {
+		response.Error(w, http.StatusForbidden, errors.New("it is not possible to update a publication from other user"))
+		return
+	}
+
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		response.Error(w, http.StatusUnprocessableEntity, err)
+		return
+	}
+
+	var publication models.Publication
+	err = json.Unmarshal(body, &publication)
+	if err != nil {
+		response.Error(w, http.StatusBadRequest, err)
+		return
+	}
+
+	if _, err = repository.Update(publicationID, publication); err != nil {
+		response.Error(w, http.StatusBadRequest, err)
+		return
+	}
+
+	response.JSON(w, http.StatusNoContent, nil)
 }
 
 //FindPublications find all publications from the user
