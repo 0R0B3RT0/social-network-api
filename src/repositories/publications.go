@@ -18,6 +18,10 @@ const (
 													  where u.id = ?
 														 or u.id in (select f.following_id from followers f where f.follower_id = ?)
 												   order by p.id`
+	SelectPublicationsByUser = `select p.id, p.title, p.content, p.likes, p.user_id, u.nick, p.created_at
+							      from publications p
+								   	   join users u on p.user_id = u.id
+							     where p.user_id = ?`
 )
 
 type Publications struct {
@@ -133,4 +137,30 @@ func (repository Publications) Delete(pubID uint64) error {
 	}
 
 	return nil
+}
+
+func (repository Publications) FindByUser(userID uint64) ([]models.Publication, error) {
+	rows, err := repository.db.Query(SelectPublicationsByUser, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	var publications []models.Publication
+	for rows.Next() {
+		var publication models.Publication
+		if err = rows.Scan(
+			&publication.ID,
+			&publication.Title,
+			&publication.Content,
+			&publication.Likes,
+			&publication.UserID,
+			&publication.UserNick,
+			&publication.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		publications = append(publications, publication)
+	}
+
+	return publications, nil
 }
