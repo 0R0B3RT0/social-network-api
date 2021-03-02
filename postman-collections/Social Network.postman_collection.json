@@ -420,7 +420,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRob3JpemVkIjp0cnVlLCJleHAiOjE2MTQ1NTg0MTQsImlkIjoxfQ.C0Ndh0BhOiRgS6XZZALCBOE2TAsHzD7cP1XLyYLL43Y",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRob3JpemVkIjp0cnVlLCJleHAiOjE2MTQ2Njk3MDYsImlkIjoxfQ.SKiMmwmCOgVxzb3lehzVVfNx6SYOGn889kAQ5JT6-j4",
 									"type": "string"
 								}
 							]
@@ -517,6 +517,66 @@
 					"response": []
 				},
 				{
+					"name": "publication-like",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRob3JpemVkIjp0cnVlLCJleHAiOjE2MTQ2NjczMDUsImlkIjoxfQ.kIxFsoU_QyueGm2zBIc0_HSkrc1d_SYvc1iQwsi1Zhk",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "localhost:5000/publications/1/like",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"publications",
+								"1",
+								"like"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "publication-unlike",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRob3JpemVkIjp0cnVlLCJleHAiOjE2MTQ2NjczMDUsImlkIjoxfQ.kIxFsoU_QyueGm2zBIc0_HSkrc1d_SYvc1iQwsi1Zhk",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "localhost:5000/publications/1/unlike",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"publications",
+								"1",
+								"unlike"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "delete-publication",
 					"request": {
 						"auth": {
@@ -553,7 +613,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRob3JpemVkIjp0cnVlLCJleHAiOjE2MTQ1NTg0MTQsImlkIjoxfQ.C0Ndh0BhOiRgS6XZZALCBOE2TAsHzD7cP1XLyYLL43Y",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRob3JpemVkIjp0cnVlLCJleHAiOjE2MTQ2Njk3MDYsImlkIjoxfQ.SKiMmwmCOgVxzb3lehzVVfNx6SYOGn889kAQ5JT6-j4",
 									"type": "string"
 								}
 							]
@@ -567,6 +627,37 @@
 							],
 							"port": "5000",
 							"path": [
+								"publications"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "find-publications-by-userid",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRob3JpemVkIjp0cnVlLCJleHAiOjE2MTQ2Njk3MDYsImlkIjoxfQ.SKiMmwmCOgVxzb3lehzVVfNx6SYOGn889kAQ5JT6-j4",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:5000//user/1/publications",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"",
+								"user",
+								"1",
 								"publications"
 							]
 						}
