@@ -41,12 +41,12 @@ func (repository Publications) Create(pub models.Publication) (uint64, error) {
 		return 0, err
 	}
 
-	lastInsertId, err := result.LastInsertId()
+	lastInsertID, err := result.LastInsertId()
 	if err != nil {
 		return 0, err
 	}
 
-	return uint64(lastInsertId), nil
+	return uint64(lastInsertID), nil
 }
 
 func (repository Publications) Update(pubID uint64, pub models.Publication) (uint64, error) {

@@ -261,7 +261,9 @@ func (repository Users) GetUserPassword(userID uint64) (string, error) {
 
 	var password string
 	if rows.Next() {
-		rows.Scan(&password)
+		if err = rows.Scan(&password); err != nil {
+			return "", err
+		}
 	}
 
 	return password, nil
