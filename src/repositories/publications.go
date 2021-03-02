@@ -166,3 +166,31 @@ func (repository Publications) FindByUser(userID uint64) ([]models.Publication, 
 
 	return publications, nil
 }
+
+func (repository Publications) LikePublication(pubID uint64) (int64, error) {
+	result, err := repository.db.Exec("update publications set likes = (likes+1) where id=?", pubID)
+	if err != nil {
+		return 0, err
+	}
+
+	affected, err := result.RowsAffected()
+	if err != nil {
+		return 0, err
+	}
+
+	return affected, nil
+}
+
+func (repository Publications) UnlikePublication(pubID uint64) (int64, error) {
+	result, err := repository.db.Exec("update publications set likes = (likes-1) where id=? and likes > 0", pubID)
+	if err != nil {
+		return 0, err
+	}
+
+	affected, err := result.RowsAffected()
+	if err != nil {
+		return 0, err
+	}
+
+	return affected, nil
+}
