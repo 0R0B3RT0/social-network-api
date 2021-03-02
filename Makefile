@@ -21,3 +21,7 @@ run: up
 stop:
 	@echo "\nStop Container\n"
 	@docker-compose stop
+
+#To use go lint you must install `go get -u github.com/golangci/golangci-lint/cmd/golangci-lint`
+lint:
+	@golangci-lint run -E golint -E bodyclose ./...
