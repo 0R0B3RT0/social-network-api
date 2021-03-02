@@ -42,4 +42,16 @@ var publicationRoutes = []Route{
 		Funcao:             controllers.FindPublicationByUser,
 		RequerAutenticacao: true,
 	},
+	{
+		URI:                "/publications/{id}/like",
+		Metodo:             http.MethodPost,
+		Funcao:             controllers.LikePublication,
+		RequerAutenticacao: true,
+	},
+	{
+		URI:                "/publications/{id}/unlike",
+		Metodo:             http.MethodPost,
+		Funcao:             controllers.UnlikePublication,
+		RequerAutenticacao: true,
+	},
 }
