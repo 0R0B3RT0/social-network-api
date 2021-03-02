@@ -131,6 +131,7 @@ func (repository Publications) Delete(pubID uint64) error {
 	if err != nil {
 		return err
 	}
+	defer statement.Close()
 
 	if _, err = statement.Exec(pubID); err != nil {
 		return err
@@ -144,6 +145,7 @@ func (repository Publications) FindByUser(userID uint64) ([]models.Publication, 
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 
 	var publications []models.Publication
 	for rows.Next() {
